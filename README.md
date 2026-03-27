@@ -154,6 +154,18 @@ See [TEST_PLAN.md](TEST_PLAN.md) for the testing strategy and coverage.
 
 ---
 
+## Development Process
+
+Built using Claude as an AI pair programmer. Claude drafted the initial 
+architecture, explained concepts, and helped generate boilerplate and write 
+documentation — but I questioned a lot, changed a lot, and made all the real 
+decisions along the way. The Supabase integration, the testing strategy, the scope, 
+the structure — those came out of back-and-forth, not copy-paste. All tests and code are 
+to be written by me. I wanted to use AI the way I would in a professional setting — 
+as a tool that speeds things up, not one that does the everything for you.
+
+---
+
 ## Author
 
 Richelle Limun — [richellelimun@gmail.com](mailto:richellelimun@gmail.com) · [@rlimun](https://github.com/rlimun)
