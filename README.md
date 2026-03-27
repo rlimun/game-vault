@@ -1,75 +1,159 @@
 # Game Vault
-Track your backlog, currently playing, and completed games — built with React/TypeScript, tested with Jest + Cypress + Playwright, and deployed via GitHub Actions CI/CD.
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Track your backlog, currently playing, and completed games.
 
-Currently, two official plugins are available:
+Built with React and TypeScript, backed by a real PostgreSQL database via Supabase, and covered by a full testing pyramid — unit tests, E2E tests, API integration tests, and cross-browser tests — running automatically on every push via GitHub Actions.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Add, edit, and delete games from your inventory
+- Track status — Playing, Completed, Backlog, or Dropped
+- Rate games 1–5 stars
+- Track progress percentage — auto-sets to 100% when marked Completed
+- Set priority — High, Medium, or Low
+- Filter by status and priority
+- Search by title, platform, or genre
+- Sort by title, rating, or progress
+- Data persists in a real database — available across devices and browsers
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| Layer | Tool |
+|---|---|
+| UI | React 18 + TypeScript |
+| Build | Vite |
+| Database + API | Supabase (PostgreSQL) |
+| Unit tests | Jest |
+| E2E tests | Cypress |
+| Cross-browser + API tests | Playwright |
+| CI/CD | GitHub Actions |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- A free [Supabase](https://supabase.com) account
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/rlimun/video-game-inventory.git
+cd video-game-inventory
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Install dependencies
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
+
+### 3. Set up Supabase
+
+Create a new project in Supabase, then run the following SQL in the Supabase SQL editor to create the games table:
+
+```sql
+create table games (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  platform text not null,
+  genre text not null,
+  status text not null,
+  rating integer not null default 0,
+  priority text not null,
+  progress integer not null default 0
+);
+```
+
+### 4. Configure environment variables
+
+Create a `.env` file in the project root:
+
+```
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+You can find these in your Supabase project under Settings → API.
+
+### 5. Run the app
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+## Running Tests
+
+### Unit tests (Jest)
+
+```bash
+npm run test:unit
+```
+
+Tests pure utility functions — filtering, sorting, validation.
+
+### E2E tests (Cypress)
+
+```bash
+npm run test:e2e
+```
+
+Tests full user flows — add, edit, delete, filter, search.
+
+### Cross-browser + API tests (Playwright)
+
+```bash
+npm run test:playwright
+```
+
+Runs E2E flows across Chrome, Firefox, and WebKit. Also runs API integration tests against Supabase endpoints.
+
+### All tests
+
+```bash
+npm run test
+```
+
+---
+
+## CI/CD
+
+GitHub Actions runs the full test suite on every push and pull request. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml) for the pipeline configuration.
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/     # UI components
+├── hooks/          # Custom React hooks (state + logic)
+├── types/          # TypeScript types and interfaces
+├── utils/          # Pure utility functions
+└── App.tsx
+
+tests/
+├── unit/           # Jest unit tests
+├── e2e/            # Cypress E2E tests
+├── integration/    # Playwright API integration tests
+└── playwright/     # Playwright cross-browser tests
+```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for a full breakdown of design decisions.
+See [TEST_PLAN.md](TEST_PLAN.md) for the testing strategy and coverage.
+
+---
+
+## Author
+
+Richelle Limun — [richellelimun@gmail.com](mailto:richellelimun@gmail.com) · [@rlimun](https://github.com/rlimun)
