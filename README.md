@@ -1,5 +1,11 @@
 # Game Vault
 
+> I built this project to practice skills I use professionally, learn new ones
+> I'd been meaning to dig into, and create something I could actually show.
+> It covers the full stack: a React/TypeScript frontend, a real PostgreSQL
+> database via Supabase, and a complete testing pyramid with Jest,
+> Cypress, and Playwright running on every push via GitHub Actions.
+
 Track your backlog, currently playing, and completed games.
 
 Built with React and TypeScript, backed by a real PostgreSQL database via Supabase, and covered by a full testing pyramid — unit tests, E2E tests, API integration tests, and cross-browser tests — running automatically on every push via GitHub Actions.
