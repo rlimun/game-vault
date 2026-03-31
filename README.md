@@ -5,6 +5,7 @@
 > It covers the full stack: a React/TypeScript frontend, a real PostgreSQL
 > database via Supabase, and a complete testing pyramid with Jest,
 > Cypress, and Playwright running on every push via GitHub Actions.
+> Check out DEV_LOG.md for updates and progress
 
 Track your backlog, currently playing, and completed games.
 
