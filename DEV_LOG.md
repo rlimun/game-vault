@@ -43,3 +43,6 @@ A running log of sessions, decisions, and thinking that went into building this 
         - Why: one clear happy path, handles the replay scenario naturally, no confirmation modal needed, easy to test.
 - Should I add accessibility into the scope?
   - I decided to put it in there because we can just use axe which already integrates with Cypress and Playwright. I've done accessibility testing before so I figured to add this in here and practice it again
+ 
+## April 7, 2026
+- I'm so sad that I've been super busy with work and other life events going on lately that I haven't had time to work on this, but once we get our big release out for work, I think I'll have more time to work on this. 
