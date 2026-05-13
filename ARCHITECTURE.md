@@ -314,3 +314,41 @@ With three different testing tools and layers, I wanted the test structure
 to be immediately obvious when someone opens the repo. It also just makes
 more sense to me to keep tests separate from source code when there's this
 much of it.
+
+---
+
+## Future Enhancements
+
+These are deliberate descoping decisions — features I plan to add after the
+core project is complete.
+
+### Delete functionality
+Descoped to keep the project focused. The DELETE endpoint and Cypress/Playwright
+test cases are already planned — they'll be added in a future iteration.
+
+### Authentication and multi-user support
+Currently scoped to a single user with no auth. Supabase Auth would be the
+natural next step — it integrates directly with the existing Supabase setup
+and would require minimal changes to storage.ts.
+
+### AI-powered test generation (Phase 7)
+The QA market is moving toward AI-assisted and autonomous testing workflows.
+After the core test suite is complete, I plan to add a Claude-powered script
+that uses the Anthropic API to analyze utility functions and suggest test cases
+automatically. This demonstrates practical AI tooling in a QA context — not
+just using AI to write code, but using it as part of the testing workflow
+itself.
+
+### Autonomous test failure agent (Phase 8)
+This is what job reqs mean when they say "AI Agents" and "autonomous testing
+systems." A true AI Agent that monitors the CI/CD pipeline, detects failing
+tests, analyzes why they failed, and suggests or applies fixes automatically —
+without a human in the loop for every step.
+
+This comes after Phase 7 intentionally. You can't build an agent to manage
+tests that don't exist yet. The right order is always: build the thing → test
+the thing → automate the testing → add AI to the automation layer.
+
+### Mobile and responsive design
+Currently desktop-only. A responsive layout pass and mobile Playwright tests
+would be the natural next step after the desktop experience is solid.

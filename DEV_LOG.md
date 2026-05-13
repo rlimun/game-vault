@@ -46,3 +46,8 @@ A running log of sessions, decisions, and thinking that went into building this 
  
 ## April 7, 2026
 - I'm so sad that I've been super busy with work and other life events going on lately that I haven't had time to work on this, but once we get our big release out for work, I think I'll have more time to work on this. 
+
+## May 13, 2026
+- I'm back! We finally got our huge release out and then after that, I went on an Asia trip (Japan, Taiwan, Singapore), came back, got used to our time zone again, and I'm ready to get back in the swing of things.
+- Yesterday, I worked on adding some jest unit test cases. Today, I'll work on adding more test cases.
+- I have been looking at job descriptions and wow, have things progressed. Those job descriptions went from being able to use AI-assisted development to -- autonomous testing, agentic workflows, and MCP servers. I want to try and be on top of the technology so I asked Claude if we could add some of these in the project. Thus, Phase 7 and Phase 8 were added to ARCHITECTURE.md.
