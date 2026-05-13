@@ -71,3 +71,79 @@ and doesn't break. We will be testing across four layers:
 | Firefox, Edge, and other browsers | Covering the two most popular browsers — Chrome and Safari — and descoping the rest |
 
 ---
+
+## 4. Jest Unit Test Cases
+
+Unit tests cover pure utility functions in `utils/`. Each test calls a function with known input and verifies the output is exactly what's expected. No browser, no UI, no network — just input in, output out.
+
+---
+
+### 4.1 `filterByStatus(games, status)`
+
+Filters a list of games by a given status.
+
+| # | Test case | Expected result |
+|---|---|---|
+| 1 | List of games, filter by `Playing` | Returns only games with status Playing |
+| 2 | List of games, filter by `Completed` | Returns only games with status Completed |
+| 3 | List of games, filter by `Backlog` | Returns only games with status Backlog |
+| 4 | List of games, filter by `Dropped` | Returns only games with status Dropped |
+| 5 | Multiple games share the same status | Returns ALL matching games, not just the first |
+| 6 | No games match the given status | Returns empty array |
+| 7 | Empty game list | Returns empty array |
+
+---
+
+### 4.2 `searchGames(games, query)`
+
+Searches games by title, platform, or genre.
+
+| # | Test case | Expected result |
+|---|---|---|
+| 1 | Search by full title | Returns all games with that title |
+| 2 | Search by partial title (e.g. "Suikoden" matches "Suikoden I", "Suikoden II", "Suikoden III") | Returns all games containing that string |
+| 3 | Search by full platform | Returns all games on that platform |
+| 4 | Search by full genre | Returns all games in that genre |
+| 5 | Search is case insensitive (e.g. "hollow knight" matches "Hollow Knight") | Returns matching games regardless of casing |
+| 6 | Search with spaces, numbers, and special characters in query | Returns correct matches |
+| 7 | Search with no matches across title, platform, and genre | Returns empty array |
+| 8 | Empty query string | Returns all games |
+| 9 | Empty game list | Returns empty array |
+
+---
+
+### 4.3 `sortGames(games, sortBy)`
+
+Sorts a list of games by a given field. Ties are broken alphabetically by full title.
+
+| # | Test case | Expected result |
+|---|---|---|
+| 1 | Sort by `title` | Returns games in A–Z alphabetical order by full title |
+| 2 | Sort by `rating` | Returns games highest rating first, lowest last |
+| 3 | Sort by `progress` | Returns games highest progress first, lowest last |
+| 4 | Multiple games with the same rating | Tied games sort alphabetically by full title |
+| 5 | Multiple games with the same progress | Tied games sort alphabetically by full title |
+| 6 | Empty game list, sort by `title` | Returns empty array |
+| 7 | Empty game list, sort by `rating` | Returns empty array |
+| 8 | Empty game list, sort by `progress` | Returns empty array |
+
+---
+
+### 4.4 `validateGame(game)`
+
+Validates a game object before saving. Title is the only required field. All other fields have defaults.
+
+| # | Test case | Expected result |
+|---|---|---|
+| 1 | Game with only a title provided | Pass — defaults fill in remaining fields |
+| 2 | Game with all fields filled out, status Completed and progress 100 | Pass |
+| 3 | Game with all fields filled out, status not Completed and progress under 100 | Pass |
+| 4 | Empty title | Fail |
+| 5 | Title is whitespace only (e.g. `"     "`) | Fail |
+| 6 | Negative rating (e.g. `-1`) | Fail |
+| 7 | Rating above 5 (e.g. `6`) | Fail |
+| 8 | Negative progress (e.g. `-1`) | Fail |
+| 9 | Progress above 100 (e.g. `101`) | Fail |
+| 10 | Status is Completed and progress is not 100 | Fail |
+
+---
