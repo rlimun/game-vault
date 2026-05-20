@@ -67,5 +67,5 @@ A running log of sessions, decisions, and thinking that went into building this 
 ## Next
 - I integrated Claude into my IDE and gave it this prompt to help me develop this application
 ```
-We're building a Video Game Inventory Manager in React/TypeScript with Supabase.                                               Architecture is in ARCHITECTURE.md and tests are in TEST_PLAN.md — read both before                                         starting. Today's goal: clean up Vite boilerplate, set up the folder structure,                                                  and create empty files for components, hooks, and utils. Explain everything as we                                             write it. Don't write implementation yet — just the scaffold.   
+We're building a Video Game Inventory Manager in React/TypeScript with Supabase. Architecture is in ARCHITECTURE.md and tests are in TEST_PLAN.md — read both before starting. Today's goal: clean up Vite boilerplate, set up the folder structure, and create empty files for components, hooks, and utils. Explain everything as we write it. Don't write implementation yet — just the scaffold.   
 ```
