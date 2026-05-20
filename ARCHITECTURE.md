@@ -1,354 +1,355 @@
-# ARCHITECTURE.md
+# TEST_PLAN.md
 
-## Overview
+## 1. Objectives
 
-Game Vault is a full-stack single-page application for managing a personal
-video game inventory. It allows users to track games across their full
-lifecycle — from backlog through active play to completion — with the ability
-to add, edit, and delete entries, filter and search the collection, and sort
-by different criteria.
+The goal of testing this app is to make sure all functionality works seamlessly
+and doesn't break. We will be testing across four layers:
 
-The frontend is built in React and TypeScript. Data is persisted in a
-PostgreSQL database hosted on Supabase, which also provides the REST API the
-app communicates with. All game data is available across devices and browsers.
-
-The app is intentionally scoped to a single user with no authentication,
-keeping the architecture focused on demonstrating frontend engineering,
-API integration, and testing practices.
-
----
-
-## Tech Stack
-
-| Layer            | Tool                    | Why                                                                                          |
-|------------------|-------------------------|----------------------------------------------------------------------------------------------|
-| UI framework     | React 18                | Component-based architecture, industry standard                                              |
-| Language         | TypeScript              | Static typing catches errors at compile time, not runtime                                    |
-| Build tool       | Vite                    | Fast dev server and bundler, current industry standard                                       |
-| Database         | Supabase (PostgreSQL)   | Real database with auto-generated REST API, free tier                                        |
-| Unit tests       | Jest                    | Fast, zero-browser unit testing for pure functions and hooks                                 |
-| E2E tests        | Cypress                 | Real browser testing for user flows with an excellent interactive runner                     |
-| Cross-browser + API tests | Playwright         | First-class cross-browser support including WebKit; also used for API integration tests against Supabase endpoints — demonstrates both UI and API testing in one tool |
-| CI/CD            | GitHub Actions          | Runs full test suite on every push                                                           |
+- **Playwright API tests** — verify that Supabase endpoints respond correctly
+  to GET, POST, and PATCH requests
+- **Playwright integration tests** — verify that data flows correctly from the
+  UI to the database and back to the UI. If we save a game, we want to confirm
+  the API call was made and the data was persisted. The next time the app loads,
+  we want to confirm that data is retrieved from the database and renders
+  correctly in the UI
+- **Cypress E2E tests** — verify that all frontend user flows work correctly
+- **Jest unit tests** — verify that pure utility functions return the correct
+  output
 
 ---
 
-## Folder Structure
+## 2. Scope
 
-```
-src/
-├── components/
-│   ├── FilterBar.tsx
-│   ├── GameCard.tsx
-│   ├── GameForm.tsx
-│   └── StatsRow.tsx
-├── hooks/
-│   ├── useFilters.ts
-│   └── useGames.ts
-├── types/
-│   └── index.ts
-├── utils/
-│   ├── filterUtils.ts
-│   ├── gameUtils.ts
-│   └── storage.ts
-└── App.tsx
+### In scope
 
-tests/
-├── e2e/
-│   └── (Cypress tests)
-├── integration/
-│   └── (Supabase API tests)
-├── playwright/
-│   └── (Playwright cross-browser tests)
-└── unit/
-    └── (Jest tests)
+**Frontend functionality:**
+- Adding a game to the vault
+- Editing all game fields — title, platform, genre, status, priority, rating,
+  and progress
+- Filtering by status and priority
+- Sorting by rating and progress
+- Searching by title, platform, and genre
+- Displaying all fields correctly in a GameCard
 
-.github/
-└── workflows/
-    └── ci.yml
+**Business rule:**
+- Setting status to Completed auto-locks progress to 100% and disables
+  the progress slider
+- Changing status away from Completed resets progress to 0 and re-enables
+  the progress slider
+- Progress slider cannot be manually moved while status is Completed
 
-ARCHITECTURE.md
-TEST_PLAN.md
-README.md
-```
+**API and data persistence:**
+- Verifying GET, POST, and PATCH calls to Supabase respond correctly
+- Verifying that saved data persists in the database and renders in the UI
+  on next load
 
----
+**Accessibility:**
+- Basic accessibility testing using axe, integrated into Cypress and Playwright.
+  axe was chosen because it integrates directly with our existing test tools
+  and runs automatically as part of the CI pipeline — no separate manual
+  testing process needed
 
-## Data Model
+**Error handling:**
+- Basic error handling — verifying the app displays an appropriate error
+  message when an API call to Supabase fails
 
-The core data structure is a single `Game` object, defined in `src/types/index.ts`.
-
-```typescript
-export type Status = 'Playing' | 'Completed' | 'Backlog' | 'Dropped';
-export type Priority = 'High' | 'Medium' | 'Low';
-
-export interface Game {
-  id: string;
-  title: string;
-  platform: string;
-  genre: string;
-  status: Status;
-  rating: number;    // 0–5, 0 = unrated
-  priority: Priority;
-  progress: number;  // 0–100
-}
-```
-
-### Field notes
-
-| Field      | Type       | Notes                                              |
-|------------|------------|----------------------------------------------------|
-| `id`       | `string`   | UUID generated by Supabase at creation, never changes |
-| `title`    | `string`   | Required, used in search                           |
-| `platform` | `string`   | Free text — PC, PS5, Switch, etc.                  |
-| `genre`    | `string`   | Free text — RPG, FPS, etc.                         |
-| `status`   | `Status`   | Drives the progress business rule                  |
-| `rating`   | `number`   | 0 means unrated, 1–5 are valid ratings             |
-| `priority` | `Priority` | Used for filtering and sorting                     |
-| `progress` | `number`   | 0–100, auto-set to 100 when status is Completed    |
-
-### Supabase schema
-
-This maps directly to a `games` table in Supabase:
-
-```sql
-create table games (
-  id uuid primary key default gen_random_uuid(),
-  title text not null,
-  platform text not null,
-  genre text not null,
-  status text not null,
-  rating integer not null default 0,
-  priority text not null,
-  progress integer not null default 0
-);
-```
+**Browsers:**
+- Chrome (via Playwright Chromium)
+- Safari (via Playwright WebKit)
 
 ---
 
-## Business Rules
+## 3. Out of Scope
 
-Business rules are explicit constraints the application enforces regardless
-of what the user does in the UI. They live in the state layer, not in
-components, so they cannot be bypassed.
-
-### Rule 1: Completed status auto-sets progress to 100%
-
-When a game's status is set to `Completed`, its progress field is
-automatically set to 100 and the progress slider is disabled in the UI.
-
-- **Where it's enforced:** `useGames.ts`
-- **Where it's reflected:** `GameForm.tsx` — slider is disabled when status is Completed
-- **Why it lives in the hook, not the component:** A component can be bypassed —
-  if a quick-complete button or any other shortcut is added later, the form
-  wouldn't be involved at all. Enforcing the rule in the hook means it applies
-  everywhere, no exceptions.
-
-### Rule 2: Progress is bounded between 0 and 100
-
-Progress cannot be set below 0 or above 100. The UI enforces this via
-the slider's min/max attributes, and the hook validates it before saving.
-
-- **Where it's enforced:** `useGames.ts` and `GameForm.tsx`
-
-### Rule 3: Rating is bounded between 0 and 5
-
-A rating of 0 means unrated. Valid ratings are 1 through 5. No other
-values are accepted.
-
-- **Where it's enforced:** `useGames.ts` and `GameForm.tsx`
-
-### Rule 4: Title is required
-
-A game cannot be saved without a title. All other fields have sensible
-defaults and are not required.
-
-- **Where it's enforced:** `GameForm.tsx` validation before submission
-- **Default values for optional fields:**
-  - status: `Backlog`
-  - rating: `0` (unrated)
-  - priority: `Medium`
-  - progress: `0`
+| Item | Reason |
+|---|---|
+| Delete functionality | Keeping the project focused — descoping deletion for now, can be added in a future iteration |
+| Multiple users and authentication | Simple app being used by one person — multiple user support is not needed |
+| Performance and load testing | Not relevant for a simple personal app used by one person |
+| Mobile testing | Descoping for now, this is a desktop web app — may add later |
+| Responsive design testing | Since we are only testing on desktop, responsive design testing is not needed |
+| Firefox, Edge, and other browsers | Covering the two most popular browsers — Chrome and Safari — and descoping the rest |
 
 ---
 
-## Data Flow
+## 4. Jest Unit Test Cases
 
-### Adding a new game
-
-1. User fills out `GameForm` and clicks Save
-2. `GameForm` validates that title is not empty
-3. `GameForm` calls `saveGame` from `useGames`
-4. `useGames` applies business rules (Completed → progress = 100)
-5. `useGames` calls `storage.ts` which sends a POST request to Supabase
-6. Supabase inserts the new row into the `games` table and returns it
-7. `useGames` updates local React state with the new game
-8. React re-renders — the new `GameCard` appears in the grid
-
-### Editing a game
-
-1. User clicks edit on a `GameCard`
-2. `GameCard` calls `onEdit` — `App.tsx` sets modal state to that game
-3. `GameForm` opens pre-filled with ALL current values:
-   - title, platform, genre, status, priority
-   - rating pre-selected (existing stars highlighted)
-   - progress slider set to current value
-   - if status is Completed, progress slider is disabled and locked at 100
-4. User makes changes — changing status to Completed auto-locks progress to 100
-5. User clicks Save
-6. `GameForm` calls `saveGame` from `useGames`
-7. `useGames` applies business rules
-8. `useGames` calls `storage.ts` — sends a PATCH request to Supabase
-9. Supabase updates the existing row
-10. `useGames` updates local React state
-11. React re-renders — `GameCard` reflects the new values
-
-### Filtering games
-
-1. User selects a status in the `FilterBar` dropdown
-2. `FilterBar` calls `setFilters` from `useFilters`
-3. `useFilters` updates its filter state
-4. `useFilters` calls `filterUtils.filterByStatus(games, status)`
-5. `filterUtils` returns a new filtered array — original game list unchanged
-6. `useFilters` exposes `filteredAndSorted` to `App.tsx`
-7. `App.tsx` passes it to the game grid
-8. React re-renders — only matching games are visible
-
-### Deleting a game
-
-1. User clicks delete on a `GameCard`
-2. `GameCard` calls `onDelete` — `App.tsx` calls `deleteGame` from `useGames`
-3. `useGames` calls `storage.ts` which sends a DELETE request to Supabase
-4. Supabase removes the row from the `games` table
-5. `useGames` removes the game from local React state
-6. React re-renders — the `GameCard` disappears from the grid
-
-### HTTP methods reference
-
-| Action              | Method | Meaning                          |
-|---------------------|--------|----------------------------------|
-| Load games          | GET    | Fetch all rows from games table  |
-| Add game            | POST   | Create a new row                 |
-| Edit game           | PATCH  | Update fields on an existing row |
-| Delete game         | DELETE | Remove a row                     |
+Unit tests cover pure utility functions in `utils/`. Each test calls a function with known input and verifies the output is exactly what's expected. No browser, no UI, no network — just input in, output out.
 
 ---
 
-## Key Decisions
+### 4.1 `filterByStatus(games, status)`
 
-These are the decisions I made while planning this project and why I made them.
-Some of these I had to think through, some were pretty straightforward once
-I understood the tradeoffs.
+Filters a list of games by a given status.
 
-### 1. Custom hooks over Redux or Zustand
-
-I looked into Redux and Zustand but decided they were overkill for what this
-app actually needs. The game list is owned by one user, it lives in one place,
-and nothing super complex is happening with shared state across the app.
-Custom hooks keep things simple and are easier to test without a bunch of
-extra setup. If the app grew into something bigger — like supporting multiple
-users or a more complex UI — I'd revisit this, but for now it felt like
-reaching for tools I didn't need.
-
-### 2. Supabase over localStorage
-
-I originally planned to use localStorage for persistence, but realized pretty
-quickly that it's tied to a single browser on a single machine. Clear your
-browser data and your games are gone. I wanted the app to actually be usable
-across devices, and I also wanted to work with a real database and API so
-the project demonstrates more than just frontend skills.
-
-Supabase made the most sense — it gives me a real PostgreSQL database and
-a REST API without having to build and host a backend from scratch. The free
-tier covers everything I need for a personal project.
-
-### 3. Storage abstracted behind storage.ts
-
-All Supabase calls go through one file — `storage.ts`. No hook or component
-talks to Supabase directly. I set it up this way so that if I ever wanted
-to swap out the database, or test with mock data, I only have to change one
-file. Nothing else in the app needs to know how storage works under the hood.
-
-### 4. Business rules enforced in useGames, not components
-
-I put rules like "Completed status auto-sets progress to 100" inside `useGames`
-instead of inside the form component. The reason is that a component can be
-bypassed — if I ever add a quick-complete button or any other shortcut, the
-form wouldn't be involved at all. Putting the rule in the hook means it runs
-on every save no matter what triggered it.
-
-### 5. Pure utils separated from hooks
-
-Anything that's just a calculation — filtering, sorting, searching — lives
-in `utils/` as a plain function with no side effects. I did this because
-pure functions are really easy to unit test. I don't need to spin up React
-or mock anything, I just call the function with some input and check the
-output. Keeping logic out of hooks and into utils means I can get solid
-test coverage without a lot of overhead.
-
-### 6. Cypress for E2E, Playwright for cross-browser and API tests
-
-I'm using both and they're not doing the same thing. Cypress is my main
-E2E testing tool — it has a great interactive runner and is really good
-for writing and debugging user flow tests quickly. Playwright handles
-cross-browser testing including WebKit, which is Safari's engine and
-something Cypress doesn't support.
-
-I'm also using Playwright for API integration tests against Supabase.
-Playwright has a built-in API testing layer (request context) that can
-hit real HTTP endpoints without spinning up a browser. Since I'm already
-using Playwright for cross-browser tests, using it for API tests too means
-no extra dependencies — and it means I get to use Playwright for two
-completely different purposes, which is a better demonstration of what the
-tool can actually do.
-
-I also wanted hands-on experience with Playwright specifically since it's
-something I've been meaning to dig into, and this project was a good
-opportunity to use it for real.
-
-### 7. Tests in a dedicated tests/ folder
-
-I put all tests in a top-level `tests/` folder organized by type — unit, e2e,
-integration, playwright — instead of co-locating them next to source files.
-With three different testing tools and layers, I wanted the test structure
-to be immediately obvious when someone opens the repo. It also just makes
-more sense to me to keep tests separate from source code when there's this
-much of it.
+| # | Test case | Expected result |
+|---|---|---|
+| 1 | List of games, filter by `Playing` | Returns only games with status Playing |
+| 2 | List of games, filter by `Completed` | Returns only games with status Completed |
+| 3 | List of games, filter by `Backlog` | Returns only games with status Backlog |
+| 4 | List of games, filter by `Dropped` | Returns only games with status Dropped |
+| 5 | Multiple games share the same status | Returns ALL matching games, not just the first |
+| 6 | No games match the given status | Returns empty array |
+| 7 | Empty game list | Returns empty array |
 
 ---
 
-## Future Enhancements
+### 4.2 `searchGames(games, query)`
 
-These are deliberate descoping decisions — features I plan to add after the
-core project is complete.
+Searches games by title, platform, or genre.
 
-### Delete functionality
-Descoped to keep the project focused. The DELETE endpoint and Cypress/Playwright
-test cases are already planned — they'll be added in a future iteration.
+| # | Test case | Expected result |
+|---|---|---|
+| 1 | Search by full title | Returns all games with that title |
+| 2 | Search by partial title (e.g. "Suikoden" matches "Suikoden I", "Suikoden II", "Suikoden III") | Returns all games containing that string |
+| 3 | Search by full platform | Returns all games on that platform |
+| 4 | Search by full genre | Returns all games in that genre |
+| 5 | Search is case insensitive (e.g. "hollow knight" matches "Hollow Knight") | Returns matching games regardless of casing |
+| 6 | Search with spaces, numbers, and special characters in query | Returns correct matches |
+| 7 | Search with no matches across title, platform, and genre | Returns empty array |
+| 8 | Empty query string | Returns all games |
+| 9 | Empty game list | Returns empty array |
 
-### Authentication and multi-user support
-Currently scoped to a single user with no auth. Supabase Auth would be the
-natural next step — it integrates directly with the existing Supabase setup
-and would require minimal changes to storage.ts.
+---
 
-### AI-powered test generation (Phase 7)
-The QA market is moving toward AI-assisted and autonomous testing workflows.
-After the core test suite is complete, I plan to add a Claude-powered script
-that uses the Anthropic API to analyze utility functions and suggest test cases
-automatically. This demonstrates practical AI tooling in a QA context — not
-just using AI to write code, but using it as part of the testing workflow
-itself.
+### 4.3 `sortGames(games, sortBy)`
 
-### Autonomous test failure agent (Phase 8)
-This is what job reqs mean when they say "AI Agents" and "autonomous testing
-systems." A true AI Agent that monitors the CI/CD pipeline, detects failing
-tests, analyzes why they failed, and suggests or applies fixes automatically —
-without a human in the loop for every step.
+Sorts a list of games by a given field. Ties are broken alphabetically by full title.
 
-This comes after Phase 7 intentionally. You can't build an agent to manage
-tests that don't exist yet. The right order is always: build the thing → test
-the thing → automate the testing → add AI to the automation layer.
+| # | Test case | Expected result |
+|---|---|---|
+| 1 | Sort by `title` | Returns games in A–Z alphabetical order by full title |
+| 2 | Sort by `rating` | Returns games highest rating first, lowest last |
+| 3 | Sort by `progress` | Returns games highest progress first, lowest last |
+| 4 | Multiple games with the same rating | Tied games sort alphabetically by full title |
+| 5 | Multiple games with the same progress | Tied games sort alphabetically by full title |
+| 6 | Empty game list, sort by `title` | Returns empty array |
+| 7 | Empty game list, sort by `rating` | Returns empty array |
+| 8 | Empty game list, sort by `progress` | Returns empty array |
 
-### Mobile and responsive design
-Currently desktop-only. A responsive layout pass and mobile Playwright tests
-would be the natural next step after the desktop experience is solid.
+---
+
+### 4.4 `validateGame(game)`
+
+Validates a game object before saving. Title is the only required field. Rating is required (1–5). All other fields have defaults.
+
+| # | Test case | Expected result |
+|---|---|---|
+| 1 | Game with only a title and rating provided | Pass — defaults fill in remaining fields |
+| 2 | Game with all fields filled out, status Completed and progress 100 | Pass |
+| 3 | Game with all fields filled out, status not Completed and progress under 100 | Pass |
+| 4 | Title at exactly 100 characters | Pass |
+| 5 | Empty title | Fail |
+| 6 | Title is whitespace only (e.g. `"     "`) | Fail — treated as empty |
+| 7 | Title with leading/trailing spaces (e.g. `"  Hollow Knight  "`) | Pass — saved as `"Hollow Knight"` after trimming |
+| 8 | Title exceeds 100 characters | Fail |
+| 9 | No rating selected (rating = 0) | Fail — rating is required |
+| 10 | Negative rating (e.g. `-1`) | Fail |
+| 11 | Rating above 5 (e.g. `6`) | Fail |
+| 12 | Negative progress (e.g. `-1`) | Fail |
+| 13 | Progress above 100 (e.g. `101`) | Fail |
+| 14 | Status is Completed and progress is not 100 | Fail |
+| 15 | Progress typed manually as a number within 0–100 | Pass |
+| 16 | Progress set to 100 manually while status is not Completed | Pass — status does NOT auto-change to Completed |
+
+---
+## 5. Cypress E2E Test Cases
+
+E2E tests simulate real user flows in a real browser. These tests verify that the full user experience works correctly — clicking, typing, submitting forms, and seeing results on screen.
+
+---
+
+### 5.1 Add game flow
+
+| # | Scenario | What Cypress verifies |
+|---|---|---|
+| 1 | Fill out all fields and save | Game appears in list, GameCard displays all entered values correctly |
+| 2 | Fill out title and rating only, save | Game appears in list, GameCard shows title, rating, and all default values |
+| 3 | Set status to Completed in form | Progress shows 100%, progress slider is disabled |
+| 4 | Save without a title | Error appears, game is NOT added to the list |
+| 5 | Fix title after error and save | Error clears, game is added to the list |
+| 6 | Save without selecting a rating | Error appears, game is NOT added to the list |
+| 7 | Add a game with the same title as an existing game | Error appears, game is NOT added to the list |
+| 8 | Set progress to 100% manually while status is not Completed | Status does NOT auto-change to Completed |
+| 9 | Title with leading/trailing spaces | Game saved with spaces trimmed, GameCard shows trimmed title |
+| 10 | Title at 101 characters | Error appears, game is NOT added to the list |
+| 11 | Open Add form and click Cancel | Form closes, game list is unchanged |
+| 12 | Fill out entire form then click Cancel | Form closes, no game is added to the list |
+| 13 | Close Add form and reopen it | Form opens blank — no previously entered values |
+| 14 | Force GET to fail on app load | Main screen shows "Failed to fetch games. Please refresh the page to try again." |
+| 15 | Force POST to fail on save | Error appears inside form modal — "Failed to save your game, please try again." Form stays open, data preserved |
+| 16 | Force PATCH to fail on edit save | Error appears inside form modal — "Failed to update your game, please try again." Form stays open, data preserved |
+
+---
+### 5.2 Edit game flow
+
+| # | Scenario | What Cypress verifies |
+|---|---|---|
+| 1 | Click edit on a GameCard — form opens pre-filled | All current values are populated in the form correctly |
+| 2 | Edit all fields and save | GameCard updates to show all new values |
+| 3 | Edit title only and save | GameCard shows updated title, all other fields unchanged |
+| 4 | Edit platform only and save | GameCard shows updated platform, all other fields unchanged |
+| 5 | Edit genre only and save | GameCard shows updated genre, all other fields unchanged |
+| 6 | Edit status only and save | GameCard shows updated status, all other fields unchanged |
+| 7 | Edit priority only and save | GameCard shows updated priority, all other fields unchanged |
+| 8 | Edit rating only and save | GameCard shows updated star rating, all other fields unchanged |
+| 9 | Edit progress only by slider and save | GameCard shows updated progress bar, all other fields unchanged |
+| 10 | Edit progress by typing a number manually and save | Progress updates correctly if value is 0–100, all other fields unchanged |
+| 11 | Change status to Completed | Progress auto-sets to 100%, slider is disabled |
+| 12 | Change status away from Completed | Progress resets to 0, slider re-enables |
+| 13 | Edit title to match an existing game's title | Error appears, edit is NOT saved |
+| 14 | Edit title to match existing title — different casing | Error appears — duplicate check is case-insensitive |
+| 15 | Edit title and clear it entirely | Error appears, edit is NOT saved |
+| 16 | Edit title to exceed 100 characters | Error appears, edit is NOT saved |
+| 17 | Edit title with leading/trailing spaces | Saved with spaces trimmed |
+| 18 | Click Cancel without making changes | Form closes, GameCard is unchanged |
+| 19 | Make changes then click Cancel | Form closes, GameCard shows original values |
+| 20 | Force PATCH to fail on save | Error appears inside form modal — "Failed to update your game, please try again." Form stays open, data preserved |
+| 21 | Retry after PATCH failure | On success, form closes, GameCard shows updated values |
+
+---
+
+### 5.3 Filter flow
+
+| # | Scenario | What Cypress verifies |
+|---|---|---|
+| 1 | Filter by status "Playing" | Only Playing games are visible |
+| 2 | Filter by status "Completed" | Only Completed games are visible |
+| 3 | Filter by status "Backlog" | Only Backlog games are visible |
+| 4 | Filter by status "Dropped" | Only Dropped games are visible |
+| 5 | Filter by priority "High" | Only High priority games are visible |
+| 6 | Filter by priority "Medium" | Only Medium priority games are visible |
+| 7 | Filter by priority "Low" | Only Low priority games are visible |
+| 8 | Filter by status with no matching games | Empty state shown, no GameCards visible |
+| 9 | Filter by status then clear filter | All games are visible again |
+| 10 | Filter by status AND priority combined | Only games matching both filters are visible |
+
+---
+
+### 5.4 Search flow
+
+| # | Scenario | What Cypress verifies |
+|---|---|---|
+| 1 | Search by full title | Only matching games are visible |
+| 2 | Search by partial title | All games containing that string are visible |
+| 3 | Search by platform | Only games on that platform are visible |
+| 4 | Search by genre | Only games in that genre are visible |
+| 5 | Search is case insensitive | Matching games appear regardless of casing |
+| 6 | Search with no matches | Empty state shown, no GameCards visible |
+| 7 | Clear search query | All games are visible again |
+| 8 | Search while a filter is active | Results respect both search query and active filter |
+
+---
+
+### 5.5 Sort flow
+
+| # | Scenario | What Cypress verifies |
+|---|---|---|
+| 1 | Sort by title A–Z | Games appear in alphabetical order |
+| 2 | Sort by rating (highest first) | Games appear with highest rating at top |
+| 3 | Sort by progress (highest first) | Games appear with highest progress at top |
+| 4 | Sort while a filter is active | Sorted results respect the active filter |
+| 5 | Sort while search is active | Sorted results respect the active search query |
+
+---
+
+### 5.6 Stats row
+
+| # | Scenario | What Cypress verifies |
+|---|---|---|
+| 1 | App loads with games | Stats row shows correct total, playing, completed, backlog counts |
+| 2 | Add a new game | Stats row updates to reflect new counts |
+| 3 | Edit a game's status | Stats row updates to reflect new counts |
+
+---
+
+### 5.7 Accessibility
+
+| # | Scenario | What Cypress verifies |
+|---|---|---|
+| 1 | Run axe on main page | No accessibility violations detected |
+| 2 | Run axe on Add game form | No accessibility violations detected |
+| 3 | Run axe on Edit game form | No accessibility violations detected |
+
+---
+
+## 6. Playwright API Test Cases
+
+API tests hit Supabase endpoints directly — no browser, no UI. They verify that the REST API behaves correctly for each operation.
+
+---
+
+### 6.1 GET /games
+
+| # | Test case | Expected result |
+|---|---|---|
+| 1 | Fetch all games | Returns 200 with array of game objects |
+| 2 | Fetch games when table is empty | Returns 200 with empty array |
+| 3 | Each game object has all required fields | id, title, platform, genre, status, rating, priority, progress all present |
+
+---
+
+### 6.2 POST /games
+
+| # | Test case | Expected result |
+|---|---|---|
+| 1 | Create a valid game with all fields | Returns 201, game appears in subsequent GET |
+| 2 | Create a game with title and rating only | Returns 201, defaults applied to other fields |
+| 3 | Create a game with a duplicate title | Returns error response, game NOT created |
+| 4 | Create a game with missing title | Returns error response, game NOT created |
+| 5 | Create a game with missing rating | Returns error response, game NOT created |
+| 6 | Create a game with progress > 100 | Returns error response |
+| 7 | Create a game with negative rating | Returns error response |
+
+---
+
+### 6.3 PATCH /games
+
+| # | Test case | Expected result |
+|---|---|---|
+| 1 | Update a game's title | Returns 200, updated title appears in subsequent GET |
+| 2 | Update a game's status to Completed | Returns 200, progress is 100 in response |
+| 3 | Update a game's status away from Completed | Returns 200, progress is 0 in response |
+| 4 | Update a game's title to match an existing game | Returns error response, update NOT applied |
+| 5 | Update a game with an invalid game ID | Returns 404 or error response |
+| 6 | Update progress to a value > 100 | Returns error response |
+
+---
+
+## 7. Playwright Cross-Browser Test Cases
+
+These tests run the same critical user flows across Chrome (Chromium) and Safari (WebKit) to verify consistent behavior across browsers.
+
+| # | Scenario | Browsers |
+|---|---|---|
+| 1 | App loads and displays game list | Chrome, Safari |
+| 2 | Add a game — full happy path | Chrome, Safari |
+| 3 | Edit a game — full happy path | Chrome, Safari |
+| 4 | Filter by status | Chrome, Safari |
+| 5 | Search by title | Chrome, Safari |
+| 6 | Sort by rating | Chrome, Safari |
+| 7 | Business rule — Completed locks progress | Chrome, Safari |
+| 8 | Validation — missing title shows error | Chrome, Safari |
+| 9 | Error handling — GET failure shows error message | Chrome, Safari |
+
+---
+
+## 8. CI/CD Pipeline
+
+GitHub Actions runs the full test suite automatically on every push and pull request.
+
+### Pipeline steps (in order)
+
+1. Install dependencies — `npm install`
+2. Run Jest unit tests — `npm run test:unit`
+3. Run Cypress E2E tests — `npm run test:e2e`
+4. Run Playwright API and cross-browser tests — `npm run test:playwright`
+
+If any step fails, the pipeline stops and the push is blocked. All test results are reported in the GitHub Actions dashboard.
+
+### What this demonstrates
+
+- Tests run automatically — no manual trigger needed
+- Every push is verified before it can be merged
+- Three test layers run in sequence — unit first (fastest), E2E second, cross-browser/API last
+- A failing test is caught before it reaches production

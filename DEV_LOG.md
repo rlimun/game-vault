@@ -51,3 +51,15 @@ A running log of sessions, decisions, and thinking that went into building this 
 - I'm back! We finally got our huge release out and then after that, I went on an Asia trip (Japan, Taiwan, Singapore), came back, got used to our time zone again, and I'm ready to get back in the swing of things.
 - Yesterday, I worked on adding some jest unit test cases. Today, I'll work on adding more test cases.
 - I have been looking at job descriptions and wow, have things progressed. Those job descriptions went from being able to use AI-assisted development to -- autonomous testing, agentic workflows, and MCP servers. I want to try and be on top of the technology so I asked Claude if we could add some of these in the project. Thus, Phase 7 and Phase 8 were added to ARCHITECTURE.md.
+
+## May 19, 2026
+- Some changes I made to architecture
+  - Simplified duplicate rule from title+platform → title only
+  - Landed on the final Completed/progress business rule (one direction only)
+  - Decided error messages show inside the modal with form staying open
+  - Chose to make rating required instead of defaulting to 3 stars
+  - Added title character limit, trimming, manual progress input
+- Finished the rest of the test cases
+  - What I did was write out all the test cases I could think of and Claude organized it for me
+  - I also said some outloud using the audio because I got tired of typing
+- Now, I can finally work on building this out!!
