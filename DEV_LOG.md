@@ -67,5 +67,36 @@ A running log of sessions, decisions, and thinking that went into building this 
 ## Next
 - I integrated Claude into my IDE and gave it this prompt to help me develop this application
 ```
-We're building a Video Game Inventory Manager in React/TypeScript with Supabase. Architecture is in ARCHITECTURE.md and tests are in TEST_PLAN.md — read both before starting. Today's goal: clean up Vite boilerplate, set up the folder structure, and create empty files for components, hooks, and utils. Explain everything as we write it. Don't write implementation yet — just the scaffold.   
+We're building a Video Game Inventory Manager in React/TypeScript with Supabase. 
+Architecture is in ARCHITECTURE.md and tests are in TEST_PLAN.md — read both 
+before starting. Today's goal: clean up Vite boilerplate, set up the folder structure,
+and create empty files for components, hooks, and utils. Explain everything as we 
+write it. Don't write implementation yet — just the scaffold.   
 ```
+
+## May 20, 2026
+- Restored `ARCHITECTURE.md` — it had been accidentally overwritten with `TEST_PLAN.md` content in the last commit. Recovered from git history and updated it with the finalized decisions from May 19.
+- Cleaned up Vite boilerplate
+  - Replaced `App.tsx` with a minimal shell component
+  - Cleared `App.css` — all styles were Vite-specific
+  - Stripped `index.css` down to a bare box-sizing reset and base font
+- Set up the full folder structure from `ARCHITECTURE.md`
+  - Created `src/components/` — `GameCard.tsx`, `GameForm.tsx`, `FilterBar.tsx`, `StatsRow.tsx`
+  - Created `src/hooks/` — `useGames.ts`, `useFilters.ts`
+  - Created `src/utils/` — `filterUtils.ts`, `gameUtils.ts`, `storage.ts`
+  - Created `tests/` with four subdirectories — `unit/`, `e2e/`, `integration/`, `playwright/`
+  - Each file has a comment explaining its role and exported function signatures
+- Implemented `filterUtils.ts`
+  - `filterByStatus` — uses `.filter()` to return only games matching a given status
+  - `searchGames` — case-insensitive search across title, platform, and genre using `.includes()`
+  - `sortGames` — sorts by title (A–Z), rating (highest first), or progress (highest first); ties broken alphabetically by title using `.sort()` on a copy of the array (`[...games]`) to avoid mutating the original
+- Implemented `validateGame` in `gameUtils.ts`
+  - Trims title before validating — whitespace-only title treated as empty
+  - Checks: title required, title ≤ 100 chars, rating 1–5, progress 0–100, Completed status requires progress = 100
+  - Returns a discriminated union type — either `{ valid: true }` or `{ valid: false, error: string }`
+
+#### What I Learned
+- `.filter()`, `.sort()`, and the spread operator `[...]` for working with arrays without mutating them
+- `Partial<T>` in TypeScript — makes all fields of a type optional, useful for validating partially filled forms
+- Discriminated union types — a TypeScript pattern where one field (like `valid`) tells you which shape the object is in
+- `import type` — required when importing types with `verbatimModuleSyntax` enabled in TypeScript
