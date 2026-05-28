@@ -64,7 +64,12 @@ A running log of sessions, decisions, and thinking that went into building this 
   - I also said some outloud using the audio because I got tired of typing
 - Now, I can finally work on building this out!!
 
-## Next
+#### What I Learned
+- `useState` — stores a value React tracks; updating it via the setter triggers a re-render
+- `useEffect` with `[]` — runs once on mount; async functions inside need to be defined and called separately since the callback itself can't be async
+- `finally` — runs whether the try succeeds or fails; right place to turn off loading state
+- Spread operator for state updates — `[...games, newGame]` for adding, `games.map(g => g.id === id ? updated : g)` for replacing
+- `Partial<T>` means fields can be missing — always check before assuming a field is set
 - I integrated Claude into my IDE and gave it this prompt to help me develop this application
 ```
 We're building a Video Game Inventory Manager in React/TypeScript with Supabase. 
@@ -120,3 +125,36 @@ write it. Don't write implementation yet — just the scaffold.
 - PATCH vs PUT — PATCH sends only changed fields, PUT replaces the whole object; Supabase's `.update()` is a PATCH
 - JSDoc (`/** */`) — documentation format picked up by the IDE to show descriptions and param info on hover
 - `import.meta.env` — how Vite exposes `.env` variables to the app at build time
+
+## May 28, 2026
+- Implemented `useGames` hook
+  - `useEffect` fetches all games from Supabase on mount, stores in state, handles loading and error states
+  - `addGame` validates input, applies business rule (Completed → progress 100), inserts to DB, updates state
+  - `editGame` validates input, applies business rules, updates DB, maps updated game into state
+- Caught a logic bug in `editGame` while implementing the progress reset rule
+  - Initial condition `else if (changes.status !== undefined)` would reset progress to 0 on *any* status change, not just when changing away from Completed
+  - Fixed by looking up the existing game first and checking `existingGame?.status === 'Completed'` before resetting
+- Implemented `useFilters` hook
+  - `useMemo` computes the filtered + sorted game list only when games or filters change
+  - Chains `filterByStatus`, `searchGames`, and `sortGames` from `filterUtils.ts` in order
+- Implemented all four components
+  - `StatsRow` — computes total, playing, completed, backlog counts with `games.filter().length`
+  - `FilterBar` — three controls (search, status dropdown, sort dropdown), each calls `setFilters` with spread to update one field at a time
+  - `GameCard` — displays game info, star rating built with `.repeat()`, progress bar with inline `style={{ width: \`${game.progress}%\` }}`
+  - `GameForm` — modal for add/edit, pre-fills from `gameToEdit` via `useEffect`, star clicks update local state, submit applies business rules then calls `onSave`
+- Wired everything together in `App.tsx`
+  - `useGames` and `useFilters` provide data and state
+  - Modal open/close controlled by `isModalOpen` and `gameToEdit` state
+  - `handleSave` routes to `addGame` or `editGame` based on whether an `id` is present
+- Fixed Supabase connection — `.env` had wrong URL (had `/rest/v1/` appended) and wrong key (service_role instead of anon)
+- App is fully functional end-to-end
+
+#### What I Learned
+- `useMemo` — caches a computed value, only re-runs when dependencies change; like `useEffect` but returns a value instead of running a side effect
+- Props — how parent components pass data into child components; destructured directly in the function signature
+- JSX — the `return (...)` block; `{variable}` embeds values, event handlers like `onChange` and `onClick` wire up user interactions
+- `e.preventDefault()` — stops the browser from reloading the page on form submit
+- `key` prop — required when rendering lists in React; use a stable unique value like `id` so React can track items
+- Optional chaining (`?.`) — safely accesses a property that might be null/undefined without crashing
+- Template literals — backtick strings that embed variables: `` `${game.progress}%` ``
+- The `as Type` cast — tells TypeScript to trust that a value is a specific type
