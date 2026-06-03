@@ -149,7 +149,7 @@ write it. Don't write implementation yet — just the scaffold.
 - Fixed Supabase connection — `.env` had wrong URL (had `/rest/v1/` appended) and wrong key (service_role instead of anon)
 - App is fully functional end-to-end
 
-#### What I Learned
+#### What I Learned (Dev)
 - `useMemo` — caches a computed value, only re-runs when dependencies change; like `useEffect` but returns a value instead of running a side effect
 - Props — how parent components pass data into child components; destructured directly in the function signature
 - JSX — the `return (...)` block; `{variable}` embeds values, event handlers like `onChange` and `onClick` wire up user interactions
@@ -158,3 +158,19 @@ write it. Don't write implementation yet — just the scaffold.
 - Optional chaining (`?.`) — safely accesses a property that might be null/undefined without crashing
 - Template literals — backtick strings that embed variables: `` `${game.progress}%` ``
 - The `as Type` cast — tells TypeScript to trust that a value is a specific type
+
+## June 2, 2026
+- Just got back from a trip to Nashville and getting back into applying for jobs, prepping for interviews, and working on this project
+- Set up Jest for unit testing
+  - Installed `jest`, `@types/jest`, `ts-jest`
+  - Created `jest.config.js` and `tsconfig.test.json`
+  - Fixed VS Code red underlines on Jest globals by adding `jest` to `types` in `tsconfig.app.json` and including `tests/` in its `include` array
+- Unit tests were written for `filterUtils.ts` — 24 test cases across `filterByStatus`, `searchGames`, and `sortGames` based on my test plan. These were scaffolded by Claude and I just have to fill it in.
+  - Filled in one test case for practice, will fill in more this week!
+
+#### What I Learned
+- You don't need a TEST_PLAN.md to scaffold test cases — it's just one approach. Others: write tests directly, use tickets/issues, inline comments, or BDD tools like Cucumber
+- Jest globals (`describe`, `test`, `expect`) don't need to be imported — Jest injects them automatically into every test file before running, similar to how browsers inject `window` and `document`. `@types/jest` tells TypeScript about these globals so it knows their types
+- VS Code uses `tsconfig.app.json` for files in `src/` but may not pick up `tsconfig.test.json` for the `tests/` folder — fix by adding `jest` to `types` and including `tests/` in `tsconfig.app.json`, not by adding `jsconfig.json` (which is for JS projects, not TS)
+
+
