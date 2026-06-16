@@ -4,9 +4,9 @@ import type { Game } from '../../src/types';
 
 // Sample games used across all tests
 const games: Game[] = [
-  { id: '1', title: 'Hollow Knight', platform: 'Steamdeck', genre: 'Metroidvania', status: 'Completed', rating: 5, priority: 'High', progress: 100 },
+  { id: '1', title: 'Hollow Knight', platform: 'Steamdeck', genre: 'Metroidvania', status: 'Completed', rating: 4, priority: 'High', progress: 100 },
   { id: '2', title: 'Coral Island', platform: 'Steamdeck', genre: 'Simulation', status: 'Dropped', rating: 4, priority: 'Medium', progress: 10 },
-  { id: '3', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 5, priority: 'High', progress: 60 },
+  { id: '3', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 4, priority: 'High', progress: 60 },
   { id: '4', title: 'Suikoden II', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 5, priority: 'High', progress: 40 },
   { id: '5', title: 'Suikoden III', platform: 'PS2', genre: 'RPG', status: 'Backlog', rating: 3, priority: 'Low', progress: 0 },
   { id: '6', title: 'The Witcher 3: Wild Hunt', platform: 'PS4', genre: 'RPG', status: 'Completed', rating: 5, priority: 'Low', progress: 100 },
@@ -50,7 +50,7 @@ describe('filterByStatus', () => {
   test('returns ALL matching games, not just the first', () => {
     const result = filterByStatus(games, 'Playing');
     expect(result).toEqual([
-      { id: '3', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 5, priority: 'High', progress: 60 },
+      { id: '3', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 4, priority: 'High', progress: 60 },
       { id: '4', title: 'Suikoden II', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 5, priority: 'High', progress: 40 },
     ]);
   });
@@ -125,9 +125,9 @@ describe('searchGames', () => {
   test('returns all games for empty query', () => {
     const result = searchGames(games, '');
     expect(result).toEqual([
-      { id: '1', title: 'Hollow Knight', platform: 'Steamdeck', genre: 'Metroidvania', status: 'Completed', rating: 5, priority: 'High', progress: 100 },
+      { id: '1', title: 'Hollow Knight', platform: 'Steamdeck', genre: 'Metroidvania', status: 'Completed', rating: 4, priority: 'High', progress: 100 },
       { id: '2', title: 'Coral Island', platform: 'Steamdeck', genre: 'Simulation', status: 'Dropped', rating: 4, priority: 'Medium', progress: 10 },
-      { id: '3', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 5, priority: 'High', progress: 60 },
+      { id: '3', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 4, priority: 'High', progress: 60 },
       { id: '4', title: 'Suikoden II', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 5, priority: 'High', progress: 40 },
       { id: '5', title: 'Suikoden III', platform: 'PS2', genre: 'RPG', status: 'Backlog', rating: 3, priority: 'Low', progress: 0 },
       { id: '6', title: 'The Witcher 3: Wild Hunt', platform: 'PS4', genre: 'RPG', status: 'Completed', rating: 5, priority: 'Low', progress: 100 }
@@ -145,28 +145,89 @@ describe('searchGames', () => {
 
 describe('sortGames', () => {
   // TODO: Test case 1 — sort by title, expect alphabetical A–Z order
-  test('sorts by title A–Z', () => {});
+  test('sorts by title A–Z', () => {
+    const result = sortGames(games, 'title');
+    expect(result).toEqual([
+      { id: '2', title: 'Coral Island', platform: 'Steamdeck', genre: 'Simulation', status: 'Dropped', rating: 4, priority: 'Medium', progress: 10 },
+      { id: '1', title: 'Hollow Knight', platform: 'Steamdeck', genre: 'Metroidvania', status: 'Completed', rating: 4, priority: 'High', progress: 100 },
+      { id: '3', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 4, priority: 'High', progress: 60 },
+      { id: '4', title: 'Suikoden II', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 5, priority: 'High', progress: 40 },
+      { id: '5', title: 'Suikoden III', platform: 'PS2', genre: 'RPG', status: 'Backlog', rating: 3, priority: 'Low', progress: 0 },
+      { id: '6', title: 'The Witcher 3: Wild Hunt', platform: 'PS4', genre: 'RPG', status: 'Completed', rating: 5, priority: 'Low', progress: 100 }
+    ])
+  });
 
   // TODO: Test case 2 — sort by rating, expect highest first
-  test('sorts by rating highest first', () => {});
+  test('sorts by rating highest first', () => {
+    const result = sortGames(games, 'rating');
+    expect(result).toEqual([
+      { id: '4', title: 'Suikoden II', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 5, priority: 'High', progress: 40 },
+      { id: '6', title: 'The Witcher 3: Wild Hunt', platform: 'PS4', genre: 'RPG', status: 'Completed', rating: 5, priority: 'Low', progress: 100 },
+      { id: '2', title: 'Coral Island', platform: 'Steamdeck', genre: 'Simulation', status: 'Dropped', rating: 4, priority: 'Medium', progress: 10 },
+      { id: '1', title: 'Hollow Knight', platform: 'Steamdeck', genre: 'Metroidvania', status: 'Completed', rating: 4, priority: 'High', progress: 100 },
+      { id: '3', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 4, priority: 'High', progress: 60 },
+      { id: '5', title: 'Suikoden III', platform: 'PS2', genre: 'RPG', status: 'Backlog', rating: 3, priority: 'Low', progress: 0 }
+    ])
+  });
 
   // TODO: Test case 3 — sort by progress, expect highest first
-  test('sorts by progress highest first', () => {});
+  test('sorts by progress highest first', () => {
+    const result = sortGames(games, 'progress');
+    expect(result).toEqual([
+      { id: '1', title: 'Hollow Knight', platform: 'Steamdeck', genre: 'Metroidvania', status: 'Completed', rating: 4, priority: 'High', progress: 100 },
+      { id: '6', title: 'The Witcher 3: Wild Hunt', platform: 'PS4', genre: 'RPG', status: 'Completed', rating: 5, priority: 'Low', progress: 100 },       
+      { id: '3', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 4, priority: 'High', progress: 60 },
+      { id: '4', title: 'Suikoden II', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 5, priority: 'High', progress: 40 },
+      { id: '2', title: 'Coral Island', platform: 'Steamdeck', genre: 'Simulation', status: 'Dropped', rating: 4, priority: 'Medium', progress: 10 },
+      { id: '5', title: 'Suikoden III', platform: 'PS2', genre: 'RPG', status: 'Backlog', rating: 3, priority: 'Low', progress: 0 }
+    ])
+  });
 
   // TODO: Test case 4 — sort by rating where ties exist, tied games sort alphabetically
-  // Hint: Suikoden I, II, and Hollow Knight all have rating 5
-  test('breaks rating ties alphabetically by title', () => {});
+  test('breaks rating ties alphabetically by title', () => {
+    const ratingTiedGames: Game[] = [
+      { id: '3', title: 'Suikoden II', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 4, priority: 'High', progress: 60 },
+      { id: '4', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 4, priority: 'High', progress: 40 },  
+      { id: '5', title: 'Suikoden III', platform: 'PS2', genre: 'RPG', status: 'Backlog', rating: 4, priority: 'Low', progress: 0 },
+      { id: '2', title: 'Coral Island', platform: 'Steamdeck', genre: 'Simulation', status: 'Dropped', rating: 4, priority: 'Medium', progress: 10 }
+    ];
+    const result = sortGames(ratingTiedGames, 'rating');
+    expect(result).toEqual([
+      { id: '2', title: 'Coral Island', platform: 'Steamdeck', genre: 'Simulation', status: 'Dropped', rating: 4, priority: 'Medium', progress: 10 },
+      { id: '4', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 4, priority: 'High', progress: 40 },
+      { id: '3', title: 'Suikoden II', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 4, priority: 'High', progress: 60 },  
+      { id: '5', title: 'Suikoden III', platform: 'PS2', genre: 'RPG', status: 'Backlog', rating: 4, priority: 'Low', progress: 0 }
+    ])
+  });
 
   // TODO: Test case 5 — sort by progress where ties exist, tied games sort alphabetically
   // Hint: Hollow Knight and Celeste both have progress 100
-  test('breaks progress ties alphabetically by title', () => {});
-
+  test('breaks progress ties alphabetically by title', () => {
+    const result = sortGames(games, 'progress');
+    expect(result).toEqual([
+      { id: '1', title: 'Hollow Knight', platform: 'Steamdeck', genre: 'Metroidvania', status: 'Completed', rating: 4, priority: 'High', progress: 100 },
+      { id: '6', title: 'The Witcher 3: Wild Hunt', platform: 'PS4', genre: 'RPG', status: 'Completed', rating: 5, priority: 'Low', progress: 100 }, 
+      { id: '3', title: 'Suikoden I', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 4, priority: 'High', progress: 60 },
+      { id: '4', title: 'Suikoden II', platform: 'PS1', genre: 'RPG', status: 'Playing', rating: 5, priority: 'High', progress: 40 }, 
+      { id: '2', title: 'Coral Island', platform: 'Steamdeck', genre: 'Simulation', status: 'Dropped', rating: 4, priority: 'Medium', progress: 10 },
+      { id: '5', title: 'Suikoden III', platform: 'PS2', genre: 'RPG', status: 'Backlog', rating: 3, priority: 'Low', progress: 0 }
+    ])
+  });
+    
   // TODO: Test case 6, 7, 8 — sort empty array by each sortBy, expect []
-  test('returns empty array for empty list sorted by title', () => {});
-  test('returns empty array for empty list sorted by rating', () => {});
-  test('returns empty array for empty list sorted by progress', () => {});
+  test('returns empty array for empty list sorted by title', () => {
+    const result = sortGames([], 'title');
+    expect(result).toEqual([]);
+    expect(result).toHaveLength(0);
+  });
+  test('returns empty array for empty list sorted by rating', () => {
+    const result = sortGames([], 'rating');
+    expect(result).toEqual([]);
+    expect(result).toHaveLength(0);
+  });
+  test('returns empty array for empty list sorted by progress', () => {
+    const result = sortGames([], 'progress');
+    expect(result).toEqual([]);
+    expect(result).toHaveLength(0);
+  });
 });
-
-// function expect(result: Game[]) {
-//   throw new Error('Function not implemented.');
-// }

@@ -178,4 +178,12 @@ write it. Don't write implementation yet — just the scaffold.
     - i.e. What if I don't enter Suikudon I, II, II in order and then I search? I can't do a .toEquals(Suikoden I, Suikoden II, Suikoden III) because that's not the correct order I entered it in, so I was asking Claude if there was a better way to test if it contains it without using the order, and then it told me to use expect.arrayContaining(games[1], games[2], games[3])
     - Another thing to note is that we definitely want to use toEquals for filter because the order matters here
 
+## June 16, 2026
+- Completed all `sortGames` unit tests in `filterUtils.test.ts` — 24/24 passing
+- Wrote all 16 `validateGame` unit tests in `validateGame.test.ts` — 40/40 passing across both test files
+- **Unit tests caught a real bug in `validateGame`** — the progress validation was rejecting `undefined` as invalid, which caused games with only a title and rating to fail validation. The fix was to only validate progress when it's actually provided (`game.progress !== undefined`). This is exactly the kind of bug unit tests are supposed to catch — the app appeared to work but the logic was wrong for partial input.
 
+#### What I Learned
+- Unit tests catch bugs that manual testing misses — the `validateGame` bug would have been hard to spot just by clicking around the app, but the test immediately showed the failure
+- `'a'.repeat(100)` — useful pattern for generating strings of a specific length in tests
+- `Partial<T>` means all fields are optional — when writing tests for functions that take `Partial`, only pass the fields relevant to the test case

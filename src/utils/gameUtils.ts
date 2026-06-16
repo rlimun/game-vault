@@ -26,7 +26,9 @@ export function validateGame(game: Partial<Game>): ValidationResult {
   if(game.rating === undefined || game.rating < 1 || game.rating > 5){
     return { valid: false, error: 'Rating must be between 1 and 5.'}
   }
-  if(game.progress === undefined || game.progress > 100 || game.progress < 0){
+  
+  //if progress is not missing AND it's out of range then fail
+  if(game.progress !== undefined && (game.progress > 100 || game.progress < 0)){
     return { valid: false, error: 'Game progress must be between 0 and 100.'};
   }
   // don't need to check if game status is undefined because if it's undefined then
