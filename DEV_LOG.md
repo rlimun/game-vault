@@ -165,12 +165,25 @@ write it. Don't write implementation yet — just the scaffold.
   - Installed `jest`, `@types/jest`, `ts-jest`
   - Created `jest.config.js` and `tsconfig.test.json`
   - Fixed VS Code red underlines on Jest globals by adding `jest` to `types` in `tsconfig.app.json` and including `tests/` in its `include` array
-- Unit tests were written for `filterUtils.ts` — 24 test cases across `filterByStatus`, `searchGames`, and `sortGames` based on my test plan. These were scaffolded by Claude and I just have to fill it in.
-  - Filled in one test case for practice, will fill in more this week!
+- Unit tests were written for `filterUtils.ts` — 24 test cases across `filterByStatus`, `searchGames`, and `sortGames` based on my test plan, all passing
 
 #### What I Learned
 - You don't need a TEST_PLAN.md to scaffold test cases — it's just one approach. Others: write tests directly, use tickets/issues, inline comments, or BDD tools like Cucumber
 - Jest globals (`describe`, `test`, `expect`) don't need to be imported — Jest injects them automatically into every test file before running, similar to how browsers inject `window` and `document`. `@types/jest` tells TypeScript about these globals so it knows their types
 - VS Code uses `tsconfig.app.json` for files in `src/` but may not pick up `tsconfig.test.json` for the `tests/` folder — fix by adding `jest` to `types` and including `tests/` in `tsconfig.app.json`, not by adding `jsconfig.json` (which is for JS projects, not TS)
 
+## June 8, 2026
+- Completed filter and search `filterUtils.ts` unit tests - all passing, need to do sort. It's 10PM right now and didn't have much time to work on this. However, since the tests were scaffolded by AI, and unit tests run so quickly, it didn't take that long to do and make sure that they pass. I'm sure I'll finish up the rest of the unit tests won't be that hard.
+  - AI originally had me use .toEquals() with the array for Search, but then I brought up a point to it -- what if the order of the games is not in the order that I set it as? 
+    - i.e. What if I don't enter Suikudon I, II, II in order and then I search? I can't do a .toEquals(Suikoden I, Suikoden II, Suikoden III) because that's not the correct order I entered it in, so I was asking Claude if there was a better way to test if it contains it without using the order, and then it told me to use expect.arrayContaining(games[1], games[2], games[3])
+    - Another thing to note is that we definitely want to use toEquals for filter because the order matters here
 
+## June 16, 2026
+- Completed all `sortGames` unit tests in `filterUtils.test.ts` — 24/24 passing
+- Wrote all 16 `validateGame` unit tests in `validateGame.test.ts` — 40/40 passing across both test files
+- **Unit tests caught a real bug in `validateGame`** — the progress validation was rejecting `undefined` as invalid, which caused games with only a title and rating to fail validation. The fix was to only validate progress when it's actually provided (`game.progress !== undefined`). This is exactly the kind of bug unit tests are supposed to catch — the app appeared to work but the logic was wrong for partial input.
+
+#### What I Learned
+- Unit tests catch bugs that manual testing misses — the `validateGame` bug would have been hard to spot just by clicking around the app, but the test immediately showed the failure
+- `'a'.repeat(100)` — useful pattern for generating strings of a specific length in tests
+- `Partial<T>` means all fields are optional — when writing tests for functions that take `Partial`, only pass the fields relevant to the test case
