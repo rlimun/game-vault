@@ -187,3 +187,21 @@ write it. Don't write implementation yet — just the scaffold.
 - Unit tests catch bugs that manual testing misses — the `validateGame` bug would have been hard to spot just by clicking around the app, but the test immediately showed the failure
 - `'a'.repeat(100)` — useful pattern for generating strings of a specific length in tests
 - `Partial<T>` means all fields are optional — when writing tests for functions that take `Partial`, only pass the fields relevant to the test case
+
+## June 16, 2026 (continued)
+- Set up Cypress E2E tests
+  - Installed Cypress 14, configured `cypress.config.js` and `tsconfig.e2e.json`
+  - Fixed ESM conflict by renaming config from `.ts` to `.js`
+  - Set up `beforeEach` to clear Supabase test data via `cy.request()` DELETE before each test
+  - Wrote 4 E2E tests for the Add Game flow — all passing
+- Figured out how to handle range input (progress slider) in Cypress — used native `HTMLInputElement` property setter + `dispatchEvent` since React doesn't respond to standard `.trigger('change')`
+- Used `.find('.progress-fill').should('have.attr', 'style', 'width: 75%;')` to verify slider value saved correctly
+
+#### What I Learned (and questioned Claude on)
+- `cy.request()` for test data setup/teardown — calling the Supabase REST API directly to delete all games before each test, keeping tests isolated and the database clean
+- `.should('contain', text)` vs `.should('be.visible')` — questioned whether `contain` was enough since DOM could have the text but not be visible to the user. I remembered this caused a lot of flaky tests when I was doing automation at a previous job
+  - Best practice is to chain both: `.should('be.visible').and('contain', text)`
+- Claude suggested that it was fine to chain all of the `.should('be.visible').and('contain', text)` within the form, but I questioned Claude about using `.within()` — which scopes all Cypress commands inside a specific element, avoids ambiguity when asserting multiple values on a single GameCard. Remembered this pattern from prior Cypress experience at Indeed
+- Range inputs in Cypress need native event dispatch — `.invoke('val').trigger('input')` doesn't work with React; must use `Object.getOwnPropertyDescriptor` to set the native value
+- Questioned using `.should('not.contain')` on `.game-grid` when the grid could be empty — better to assert on `body` or check `.modal` doesn't exist
+- `cypress.env.json` for storing test secrets — keeps Supabase credentials out of source code, added to `.gitignore`
