@@ -205,3 +205,7 @@ write it. Don't write implementation yet — just the scaffold.
 - Range inputs in Cypress need native event dispatch — `.invoke('val').trigger('input')` doesn't work with React; must use `Object.getOwnPropertyDescriptor` to set the native value
 - Questioned using `.should('not.contain')` on `.game-grid` when the grid could be empty — better to assert on `body` or check `.modal` doesn't exist
 - `cypress.env.json` for storing test secrets — keeps Supabase credentials out of source code, added to `.gitignore`
+
+## June 17, 2026
+### Update:
+- My contract at FCB ends at the end of this month so for the last sprint, I will be backed up and really busy with finishing and closing up tasks at work. I will probably not be able to work on this until the end of my contract.
