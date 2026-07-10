@@ -22,7 +22,7 @@ export default function GameCard({ game, onEdit }: Props) {
       <p>{game.platform} · {game.genre}</p>
       <p>Status: {game.status}</p>
       <p>Priority: {game.priority}</p>
-      <p>Rating: {stars}</p>
+      <p data-testid="rating">Rating: {stars}</p>
 
       {/* Progress bar */}
       <div className="progress-bar">

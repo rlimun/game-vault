@@ -1,6 +1,7 @@
  /// <reference types="cypress" />
 // E2E tests for the Add Game flow
 // Covers TEST_PLAN.md section 5.1
+
 describe('Add Game', () => {
   beforeEach(() => {
     cy.request({
@@ -18,17 +19,15 @@ describe('Add Game', () => {
 
   // TODO: Test case 1 — fill out all fields and save, game appears in list
   it('adds a game with all fields filled out', () => {
+    const rating = 4;
+    const expectedStars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
     cy.get('form').contains('label', 'Title').find('input').type('Final Fantasy VII: Remake')  
     cy.get('form').contains('label', 'Platform').find('input').type('PS4')  
     cy.get('form').contains('label', 'Genre').find('input').type('RPG')  
     cy.get('form').contains('label', 'Status').find('select').select('Playing')
     cy.get('form').contains('label', 'Priority').find('select').select('High')
-    cy.get('.star-rating span:nth-child(4)').click();   
-    cy.get('form input[type="range"]').then($slider => {                                                                                       
-        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')!.set;                         
-        nativeInputValueSetter!.call($slider[0], 75);                                                                                            
-        $slider[0].dispatchEvent(new Event('input', { bubbles: true }));
-      });                  
+    cy.selectStarRating(rating);
+    cy.moveProgressSlider(75);             
     cy.get('button').contains('Save').click();
     cy.get('.modal').should('not.exist');
     cy.contains('.game-card', 'Final Fantasy VII: Remake')
@@ -37,7 +36,8 @@ describe('Add Game', () => {
         cy.contains('PS4').should('be.visible');                                                                                               
         cy.contains('RPG').should('be.visible');                                                                                               
         cy.contains('Playing').should('be.visible');
-        cy.contains('High').should('be.visible');                                                                                              
+        cy.contains('High').should('be.visible');   
+        cy.get('[data-testid="rating"]').should('have.text', `Rating: ${expectedStars}`);                                                                                          
         cy.get('.progress-fill').should('have.attr', 'style', 'width: 75%;');                                                                
     });  
   });

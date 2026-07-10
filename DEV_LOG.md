@@ -205,3 +205,33 @@ write it. Don't write implementation yet — just the scaffold.
 - Range inputs in Cypress need native event dispatch — `.invoke('val').trigger('input')` doesn't work with React; must use `Object.getOwnPropertyDescriptor` to set the native value
 - Questioned using `.should('not.contain')` on `.game-grid` when the grid could be empty — better to assert on `body` or check `.modal` doesn't exist
 - `cypress.env.json` for storing test secrets — keeps Supabase credentials out of source code, added to `.gitignore`
+
+## July 10, 2026
+- I've been working on updating and adding more to this project for the past couple of days since my contract ended (June 30). I'm trying to finish this so I could get to the API tests asap but I want to make sure I'm not just depending and using AI to complete everything. I also am trying to make sure that I am understanding what I'm doing because I'm a little out of practice with this tech stack, but here are my updates:
+  - Added e2e test files with scaffolding: 
+    - `editGame.cy.ts`
+      - Added some tests for this file
+    - `filterAndSearch.cy.ts`
+  - Updated addGame.cy.ts with custom Cypress commands added
+  - Created reusable Cypress custom commands in `tests/support/commands.ts`
+    - `cy.moveSlider(selector, value)` — moves a range input using native `HTMLInputElement` property setter + `dispatchEvent`, since React doesn't respond to standard Cypress trigger
+    - `cy.selectStarRating(rating)` — clicks the correct star by index using `:nth-child()`
+    - `cy.clickButton(label)` — clicks a button by its text label
+  - Created `tests/support/e2e.ts` as the Cypress support entry point — imports `commands.ts` so all custom commands are available globally across every test file without manual imports
+  - Added `supportFile: 'tests/support/e2e.ts'` to `cypress.config.js` to point Cypress at the custom support folder
+
+#### Key Decisions Made
+- Moved repeated slider interaction into a custom command — the slider logic was being duplicated across Add Game and Edit Game tests, and it's verbose enough that duplicating it made tests hard to read
+- Moved repeated button click into a custom command
+- Moved repeated selecting star rating into a custom command
+- Updated star rating selector to use data-testid with an actual value so that it's not just hard-coded stars
+- Used Cypress custom commands over plain helper functions — custom commands integrate with the `cy` chain, which feels more natural and consistent with how the rest of the tests are written
+
+#### What I Learned
+- Cypress custom commands go in `tests/support/commands.ts` and are registered with `Cypress.Commands.add()` — not imported per-file, just available everywhere once the support file loads them
+- TypeScript requires a `declare global` block to extend the `Chainable` interface so that `cy.myCommand()` doesn't show a type error — and the file needs `export {}` at the top to be treated as a module, which is what allows `declare global` to work
+- Looking at the code and adding and updating tests, I noticed a couple of things that I wanted to change:
+  - I might update all selectors to use data-testid
+  - Update tests to use constants for strings that are used multiple times in various places
+  - Add more Cypress commands for code that is used multiple times
+  - Run through all tests again and see what I can do to make them more stable or for the code to look cleaner
