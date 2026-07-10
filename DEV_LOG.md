@@ -206,6 +206,10 @@ write it. Don't write implementation yet — just the scaffold.
 - Questioned using `.should('not.contain')` on `.game-grid` when the grid could be empty — better to assert on `body` or check `.modal` doesn't exist
 - `cypress.env.json` for storing test secrets — keeps Supabase credentials out of source code, added to `.gitignore`
 
+## June 17, 2026
+### Update:
+- My contract at FCB ends at the end of this month so for the last sprint, I will be backed up and really busy with finishing and closing up tasks at work. I will probably not be able to work on this until the end of my contract.
+
 ## July 10, 2026
 - I've been working on updating and adding more to this project for the past couple of days since my contract ended (June 30). I'm trying to finish this so I could get to the API tests asap but I want to make sure I'm not just depending and using AI to complete everything. I also am trying to make sure that I am understanding what I'm doing because I'm a little out of practice with this tech stack, but here are my updates:
   - Added e2e test files with scaffolding: 
