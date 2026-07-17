@@ -113,13 +113,28 @@ describe('Edit Game', () => {
 
   // TODO: Test case 4 — change status to Completed, progress auto-sets to 100 and slider disabled
   it('auto-sets progress to 100 and disables slider when status changed to Completed', () => {
-    cy.moveProgressSlider(100);
-
+    cy.contains('label', 'Status').find('select').select('Completed');                                                                                                                 
+    cy.get('form input[type="range"]').should('have.value', '100');                                                                                                                    
+    cy.get('form input[type="range"]').should('be.disabled');           
   });
 
   // TODO: Test case 5 — change status away from Completed, progress resets to 0 and slider re-enables
-  it('resets progress to 0 and re-enables slider when status changed away from Completed', () => {});
+  it('resets progress to 0 and re-enables slider when status changed away from Completed', () => {
+    cy.contains('label', 'Status').find('select').select('Completed');                                                                                                                 
+    cy.contains('label', 'Status').find('select').select('Playing');                                                                                                                   
+    cy.get('form input[type="range"]').should('have.value', '0');   
+    cy.get('form input[type="range"]').should('not.be.disabled');   
+  });
 
   // TODO: Test case 12 — click Cancel without changes, form closes, GameCard unchanged
-  it('closes form without saving when Cancel is clicked', () => {});
+  it('closes form without saving when Cancel is clicked', () => {
+    cy.clickButton('Cancel');                   
+    cy.get('.modal').should('not.exist');                                                                                                                                              
+    cy.contains('.game-card', initialTitle)
+      .should('be.visible')                                                                                                                                                            
+      .within(() => {      
+        cy.contains(initialPlatform).should('be.visible');                                                                                                                             
+        cy.contains(initialStatus).should('be.visible');  
+      });   
+    });
 });
