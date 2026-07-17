@@ -239,3 +239,13 @@ write it. Don't write implementation yet — just the scaffold.
   - Update tests to use constants for strings that are used multiple times in various places
   - Add more Cypress commands for code that is used multiple times
   - Run through all tests again and see what I can do to make them more stable or for the code to look cleaner
+
+## July 16, 2026
+- Completed the remaining Edit Game E2E tests (test cases 4, 5, 12)
+- **E2E test caught a real bug** — the "resets progress to 0 when status changed away from Completed" test was failing because the slider was resetting to 50 (the seeded progress value) instead of 0
+  - **Root cause:** `GameForm.tsx` was only updating `status` in local state when the dropdown changed, leaving `fields.progress` at its pre-filled value. The form then sent `progress: 50` to `editGame()`, which overwrote the hook's reset-to-0 logic before it could take effect
+  - **Fix:** Updated the status `onChange` handler in `GameForm.tsx` to also reset `progress` in local form state — set to 100 when switching to Completed, reset to 0 when switching away from Completed, otherwise keep the current value
+
+#### What I Learned
+- A bug can slip past the hook even when the hook logic is correct — if the form sends the wrong value in the first place, the hook never gets a chance to apply its business rule. The form and the hook both need to agree on the same rule
+- E2E tests catch this class of bug better than unit tests because they exercise the full flow: form state → submit → hook → DB → re-render. A unit test on `editGame()` alone would have passed since the hook logic was fine

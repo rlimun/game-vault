@@ -114,7 +114,13 @@ export default function GameForm({ gameToEdit, onSave, onClose }: Props) {
           <label>Status
             <select
               value={fields.status}
-              onChange={(e) => setFields({ ...fields, status: e.target.value as Status })}
+              onChange={(e) => { 
+                const newStatus = e.target.value as Status;
+                const newProgress = newStatus === 'Completed' ? 100
+                : fields.status === 'Completed' ? 0
+                : fields.progress
+                setFields({...fields, status: newStatus, progress: newProgress })
+              }}
             >
               <option value="Backlog">Backlog</option>
               <option value="Playing">Playing</option>
