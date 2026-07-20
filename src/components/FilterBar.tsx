@@ -23,6 +23,7 @@ export default function FilterBar({ filters, setFilters }: Props) {
 
       {/* Search input — update query on every keystroke */}
       <input
+        data-testid="search-input"
         type="text"
         placeholder="Search by title, platform, or genre"
         value={filters.query}
@@ -31,6 +32,7 @@ export default function FilterBar({ filters, setFilters }: Props) {
 
       {/* Status filter dropdown — null means "all statuses" */}
       <select
+        data-testid="status-filter"
         value={filters.status ?? ''}
         onChange={(e) => {
           // TODO: call setFilters with the updated status

@@ -216,7 +216,8 @@ E2E tests simulate real user flows in a real browser. These tests verify that th
 | 7 | Filter by priority "Low" | Only Low priority games are visible |
 | 8 | Filter by status with no matching games | Empty state shown, no GameCards visible |
 | 9 | Filter by status then clear filter | All games are visible again |
-| 10 | Filter by status AND priority combined | Only games matching both filters are visible |
+
+> **Note:** Test cases 5, 6, 7 (filter by priority) are deferred. Priority filtering is not yet implemented in `FilterBar`. These tests should be added when the priority filter dropdown is built.
 
 ---
 

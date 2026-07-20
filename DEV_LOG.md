@@ -249,3 +249,33 @@ write it. Don't write implementation yet — just the scaffold.
 #### What I Learned
 - A bug can slip past the hook even when the hook logic is correct — if the form sends the wrong value in the first place, the hook never gets a chance to apply its business rule. The form and the hook both need to agree on the same rule
 - E2E tests catch this class of bug better than unit tests because they exercise the full flow: form state → submit → hook → DB → re-render. A unit test on `editGame()` alone would have passed since the hook logic was fine
+
+## July 20, 2026
+- Implemented all Filter E2E tests (test cases 1–4, 8, 9) in `filterAndSearch.cy.ts`
+  - Noticed that there were test cases in the Test Plan that weren't appearing in the Cypress tests. It was for a feature not yet implemented so I made a note of it to add those tests once the Filter by Priority feature gets added
+  - Created constants for strings used multiple times 
+- Added `deleteGamesByStatus(status)` helper function — deletes games by status via Supabase REST API, used to set up the empty state test without changing the shared seed data
+- Added `data-testid="status-filter"` to the status dropdown in `FilterBar.tsx` and updated all test selectors to use it instead of `cy.contains('option', 'All Statuses').parent()`
+- Implemented all Search E2E tests (test cases 1–8) in `filterAndSearch.cy.ts`
+  - Added `data-testid="search-input"` to the search input in `FilterBar.tsx` and updated all tests to use `cy.get('[data-testid="search-input"]')` instead of `cy.get('input[type="text"]')`
+  - Test case 4 (search by genre): searching "RPG" returns 3 results because "Action RPG" also contains "RPG" — important to understand how your seed data interacts with substring matching
+  - Test case 8 (search + filter combined) verifies that both filters apply simultaneously — searched "Suikoden" first to get 2 results, then applied Playing filter to narrow to 1
+
+#### Key Decisions Made
+- Removed negative title assertions (e.g. `cy.contains(GAME_CARD, 'Hollow Knight').should('not.exist')`) in favor of `.each()` + length check — asserting every visible card has the correct status and the count is right is stronger and less brittle than listing which titles shouldn't appear
+- Used `data-testid` on the status filter dropdown instead of traversing from an option's parent — more explicit, survives markup changes, and communicates that the element is test-targeted. It was originally `cy.contains('option', 'All Statuses').parent()`
+  - Using .parent() is too volatile and the DOM elements could change at any time so it's best to use something like `data-testid` in this situation - we changed it to `cy.get('[data-testid="status-filter"]')`
+- Used `data-testid` on the search input to prevent ambiguity if other text inputs are ever added to the page — `input[type="text"]` would match all of them
+
+#### What I Learned
+- `.select('')` is needed to clear a dropdown back to the default "All Statuses" option — `cy.select('All Statuses')` matches by display text but Cypress `.select()` works on the option value, which is `''` for the default
+- `cy.reload()` is needed after an API call that changes data mid-test — the page won't automatically reflect backend changes made after it loaded
+- Claude Code will give basic test suggestions like `cy.contains('.game-card', 'Hollow Knight').should('exist')` but this isn't a great suggestion because it's just verifying that a text appears in the Game Card, instead of specifically making sure that the text appears on the game title, where it belongs
+  - It also suggested to check to make sure other game cards don't exist when you filter by a status, but my jquery check to make sure that each game card has a specific status already checks each game card so it's redundant to check if a game card doesn't exist since the jquery each already checks every game card
+  - Also when I asked Claude Code to scaffold test cases based on the test plan, it was missing a bunch of test cases for some reason, so I had to make sure to go back to the test plan and make sure that all test cases were accounted for. 
+    - Fun little tidbit: It did this for filter and then when I asked it to check the test plan for search tests to make sure no test cases were missed, it told me "Same issue as before - when I asked you to check the test plan earlier for filter" lol excuse me??! I'm pretty sure I asked Claude to check the test plan because it missed some test cases before
+
+#### What I Learned
+- `cy.get(GAME_CARD).should('not.exist')` is more idiomatic than `.should('have.length', 0)` in Cypress when asserting nothing is present
+- When asserting case-insensitive search, verify the displayed title (e.g. `'Bloodborne'`), not what was typed (e.g. `'bloodBorne'`) — the card always shows the stored value
+- Partial title matching has subtle implications with seed data — "Suikoden I" matches "Suikoden II" because it's a substring, so test counts need to account for this
