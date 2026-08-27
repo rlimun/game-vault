@@ -2,6 +2,8 @@
 // E2E tests for the Add Game flow
 // Covers TEST_PLAN.md section 5.1
 
+import { addGameModal } from './components/addGameModal.cy';
+
 describe('Add Game', () => {
   beforeEach(() => {
     cy.request({
@@ -22,6 +24,7 @@ describe('Add Game', () => {
     const rating = 4;
     const expectedStars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
     cy.get('form').contains('label', 'Title').find('input').type('Final Fantasy VII: Remake')  
+    addGameModal.enterTitle('Final Fantasy VII: Remake');
     cy.get('form').contains('label', 'Platform').find('input').type('PS4')  
     cy.get('form').contains('label', 'Genre').find('input').type('RPG')  
     cy.get('form').contains('label', 'Status').find('select').select('Playing')
