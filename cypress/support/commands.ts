@@ -1,4 +1,22 @@
 /// <reference types="cypress" />
+
+Cypress.Commands.add('selectStarRating', (rating: number) => {
+  // TODO: click the nth star in the star rating widget
+});
+
+Cypress.Commands.add('moveProgressSlider', (percent: number) => {
+  // TODO: drag/interact with the progress slider to set it to the given percent
+});
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      selectStarRating(rating: number): Chainable<void>
+      moveProgressSlider(percent: number): Chainable<void>
+    }
+  }
+}
+
 // ***********************************************
 // This example commands.ts shows you how to
 // create various custom commands and overwrite
