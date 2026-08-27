@@ -2,7 +2,7 @@
 // E2E tests for the Add Game flow
 // Covers TEST_PLAN.md section 5.1
 
-import { addGameModal } from './components/addGameModal.cy';
+import { addGameModal } from './Components/addGameModal.cy';
 
 describe('Add Game', () => {
   beforeEach(() => {
