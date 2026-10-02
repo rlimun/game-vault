@@ -279,3 +279,16 @@ write it. Don't write implementation yet — just the scaffold.
 - `cy.get(GAME_CARD).should('not.exist')` is more idiomatic than `.should('have.length', 0)` in Cypress when asserting nothing is present
 - When asserting case-insensitive search, verify the displayed title (e.g. `'Bloodborne'`), not what was typed (e.g. `'bloodBorne'`) — the card always shows the stored value
 - Partial title matching has subtle implications with seed data — "Suikoden I" matches "Suikoden II" because it's a substring, so test counts need to account for this
+
+## August 27, 2026
+- Set up Playwright for E2E testing
+  - Installed `@playwright/test` and created `playwright.config.ts`
+  - Created `tests/playwright/helpers.ts` with shared utilities: `clearGames`, `seedGame`, `moveProgressSlider`, `selectStarRating`
+- Wrote Playwright E2E tests for Add Game (`tests/playwright/addGame.spec.ts`)
+  - Adds a game with all fields filled out and verifies the card appears with correct data
+  - Shows error when saving without a title
+  - Shows error when saving without a rating
+  - Closes the form without adding when Cancel is clicked
+- Wrote Playwright E2E tests for Edit Game (`tests/playwright/editGame.spec.ts`)
+  - Seeds a game before each test using the Supabase REST API via `seedGame`
+- Fixed a couple of errors in `tests/e2e/addGame.cy.ts` and `cypress/support/commands.ts`
