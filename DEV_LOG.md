@@ -292,3 +292,7 @@ write it. Don't write implementation yet — just the scaffold.
 - Wrote Playwright E2E tests for Edit Game (`tests/playwright/editGame.spec.ts`)
   - Seeds a game before each test using the Supabase REST API via `seedGame`
 - Fixed a couple of errors in `tests/e2e/addGame.cy.ts` and `cypress/support/commands.ts`
+
+## October 2, 2026
+- Hi! I know I haven't updated this in awhile! I've been busy with summer vacation, trips, and prepping for interviews and job searching! This is why I haven't had much time to work on this and commit to the repo--I've mostly been away from home and also prepping for those interviews. I should have at least a little bit more time now though. I really want to finish this up and work on it more and show some improvements because looking back at all this code, it could definitely use a CR
+- Going to push these changes for now and will start updating more frequently from here on out!
